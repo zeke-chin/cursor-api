@@ -40,6 +40,11 @@
 - 请妥善保管您的 WorkosCursorSessionToken，不要泄露给他人
 - 本项目仅供学习研究使用，请遵守 Cursor 的使用条款
 
+## 原始项目
+
+- [cursorToApi](https://github.com/luolazyandlazy/cursorToApi)
+- 本项目基于 cursorToApi 项目进行优化，感谢原作者的贡献
+
 ## 许可证
 
 MIT License
