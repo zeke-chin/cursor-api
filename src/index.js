@@ -1,6 +1,7 @@
 const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const { stringToHex, chunkToUtf8String } = require('./utils.js')
+require('dotenv').config()
 const app = express()
 
 // 中间件配置
