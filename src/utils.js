@@ -60,20 +60,51 @@ function stringToHex (str, modelName) {
   return Buffer.from(hexString, 'hex')
 }
 
-// 封装的函数，用于将 chunk 转换为 UTF-8 字符串
+// 封装��函数，用于将 chunk 转换为 UTF-8 字符串
 function chunkToUtf8String (chunk) {
   if (chunk[0] === 0x01 || chunk[0] === 0x02) {
     return ''
   }
-  // 去掉 chunk 中 0x0a 以及之前的字符
-  chunk = chunk.slice(chunk.indexOf(0x0a) + 1)
-  let hexString = Buffer.from(chunk).toString('hex')
-  console.log('hexString:', hexString)
 
-  // 去除里面所有这样的字符：0 跟着一个数字然后 0a，去除掉换页符 0x0c
-  hexString = hexString.replace(/0\d0a/g, '').replace(/0c/g, '')
-  console.log('hexString2:', hexString)
-  const utf8String = Buffer.from(hexString, 'hex').toString('utf-8')
+  console.log('chunk:', Buffer.from(chunk).toString('hex'))
+  console.log('chunk string:', Buffer.from(chunk).toString('utf-8'))
+
+  // 去掉 chunk 中 0x0A 以及之前的字符
+  chunk = chunk.slice(chunk.indexOf(0x0A) + 1)
+
+  let filteredChunk = []
+  let i = 0
+  while (i < chunk.length) {
+    if (chunk[i] === 0x0C) {
+      // 遇到 0x0C 时，跳过 0x0C 以及后续的所有连续的 0x0A
+      i++ // 跳过 0x0C
+      while (i < chunk.length && chunk[i] === 0x0A) {
+        i++ // 跳过所有连续的 0x0A
+      }
+    } else if (
+      i > 0 &&
+      chunk[i] === 0x0A &&
+      chunk[i - 1] >= 0x00 &&
+      chunk[i - 1] <= 0x09
+    ) {
+      // 如果当前字节是 0x0A，且前一个字节在 0x00 至 0x09 之间，跳过前一个字节和当前字节
+      filteredChunk.pop() // 移除已添加的前一个字节
+      i++ // 跳过当前的 0x0A
+    } else {
+      filteredChunk.push(chunk[i])
+      i++
+    }
+  }
+
+  // 第二步：去除所有的 0x00 和 0x0C
+  filteredChunk = filteredChunk.filter((byte) => byte !== 0x00 && byte !== 0x0C)
+
+  // 去除小于 0x0A 的字节
+  filteredChunk = filteredChunk.filter((byte) => byte >= 0x0A)
+
+  const hexString = Buffer.from(filteredChunk).toString('hex')
+  console.log('hexString:', hexString)
+  const utf8String = Buffer.from(filteredChunk).toString('utf-8')
   console.log('utf8String:', utf8String)
   return utf8String
 }
