@@ -72,8 +72,7 @@ app.post('/v1/chat/completions', async (req, res) => {
 
       // 使用封装的函数处理 chunk
       for await (const chunk of response.body) {
-        let text = ''
-        text += chunkToUtf8String(chunk)
+        const text = chunkToUtf8String(chunk)
         console.log('stream text:', text)
 
         if (text.length > 0) {
