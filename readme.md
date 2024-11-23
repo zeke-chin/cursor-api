@@ -42,8 +42,7 @@
 
 ## 原始项目
 
-- [cursorToApi](https://github.com/luolazyandlazy/cursorToApi)
-- 本项目基于 cursorToApi 项目进行优化，感谢原作者的贡献
+- 本项目基于 [cursorToApi](https://github.com/luolazyandlazy/cursorToApi) 项目进行优化，感谢原作者的贡献
 
 ## 许可证
 
