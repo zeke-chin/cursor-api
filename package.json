@@ -13,6 +13,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
+    "deploy": "git pull && yarn && pm2 restart cursor-api",
     "lint": "eslint src/**/*.js",
     "dev": "node --tls-keylog=./sslkey.log --watch src/index.js"
   },

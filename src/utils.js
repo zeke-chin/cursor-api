@@ -60,7 +60,7 @@ function stringToHex (str, modelName) {
   return Buffer.from(hexString, 'hex')
 }
 
-// 封装��函数，用于将 chunk 转换为 UTF-8 字符串
+// 封装函数，用于将 chunk 转换为 UTF-8 字符串
 function chunkToUtf8String (chunk) {
   if (chunk[0] === 0x01 || chunk[0] === 0x02) {
     return ''
@@ -75,6 +75,15 @@ function chunkToUtf8String (chunk) {
   let filteredChunk = []
   let i = 0
   while (i < chunk.length) {
+    // 新的条件过滤：如果遇到连续4个0x00，则移除其之后所有的以 0 开头的字节（0x00 到 0x0F）
+    if (chunk.slice(i, i + 4).every(byte => byte === 0x00)) {
+      i += 4 // 跳过这4个0x00
+      while (i < chunk.length && chunk[i] >= 0x00 && chunk[i] <= 0x0F) {
+        i++ // 跳过所有以 0 开头的字节
+      }
+      continue
+    }
+
     if (chunk[i] === 0x0C) {
       // 遇到 0x0C 时，跳过 0x0C 以及后续的所有连续的 0x0A
       i++ // 跳过 0x0C
