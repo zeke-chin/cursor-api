@@ -62,7 +62,7 @@ function stringToHex (str, modelName) {
 
 // 封装函数，用于将 chunk 转换为 UTF-8 字符串
 function chunkToUtf8String (chunk) {
-  if (chunk[0] === 0x01 || chunk[0] === 0x02) {
+  if (chunk[0] === 0x01 || chunk[0] === 0x02 || (chunk[0] === 0x60 && chunk[1] === 0x0C)) {
     return ''
   }
 
