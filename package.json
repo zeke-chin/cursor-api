@@ -8,7 +8,8 @@
     "body-parser": "1.20.3",
     "dotenv": "16.4.5",
     "express": "4.21.1",
-    "uuid": "11.0.3"
+    "uuid": "11.0.3",
+    "yarn": "^1.22.22"
   },
   "scripts": {
     "start": "node src/index.js",

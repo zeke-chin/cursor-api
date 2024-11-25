@@ -1,2 +1,4 @@
 .env
 tests/
+
+node_modules/
