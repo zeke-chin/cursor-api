@@ -10,6 +10,18 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// 在 main() 函数之前添加以下结构体定义
+type ChatRequest struct {
+	Model     string        `json:"model"`
+	Messages  []Message     `json:"messages"`
+	Stream    bool          `json:"stream"`
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: Error loading .env file")
@@ -67,4 +79,19 @@ func handleChat(c *gin.Context) {
 
 	// 处理非流式请求
 	handleNormalResponse(c, req)
+}
+
+// 在文件末尾添加这两个新函数
+func handleStreamResponse(c *gin.Context, req ChatRequest) {
+	// TODO: 实现流式响应的逻辑
+	c.JSON(http.StatusNotImplemented, gin.H{
+		"error": "Stream response not implemented yet",
+	})
+}
+
+func handleNormalResponse(c *gin.Context, req ChatRequest) {
+	// TODO: 实现普通响应的逻辑
+	c.JSON(http.StatusNotImplemented, gin.H{
+		"error": "Normal response not implemented yet",
+	})
 } 
