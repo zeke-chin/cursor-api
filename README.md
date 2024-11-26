@@ -4,6 +4,7 @@
 - 本项目提供了一个代理服务，可以将 Cursor 编辑器的 AI 能力转换为与 OpenAI API 兼容的接口，让您能够在其他应用中复用 Cursor 的 AI 能力。
 - 目前只完成rs-capi的开发，go 未实现
 - 支持图片
+- 不支持 max_tokens 等参数
 
 
 ## 使用前准备
