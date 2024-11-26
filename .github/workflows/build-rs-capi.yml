@@ -6,6 +6,7 @@ on:
     tags: [ "v*" ]
     paths:
       - 'rs-capi/**'
+      - '.github/workflows/**'
 
 jobs:
   # 构建各平台二进制文件
