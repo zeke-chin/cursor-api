@@ -20,14 +20,14 @@
 
 ## 快速开始
 ```
-docker run --rm -p 7070:3000 ghcr.io/xxxx/rs-capi:latest
+docker run --rm -p 3000:3000 ghcr.io/zeke-chin/cursor-api
 ```
 
 docker-compose
 ```
 services:
   rs-capi:
-    image: ghcr.io/xxxx/rs-capi:latest
+    image: ghcr.io/zeke-chin/cursor-api:latest
     ports:
       - 3000:3000
 ```
