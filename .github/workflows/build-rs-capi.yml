@@ -68,16 +68,23 @@ jobs:
   create-release:
     needs: build-release
     runs-on: ubuntu-latest
-    # 添加权限设置
     permissions:
-      contents: write  # 需要写入权限来创建 release
-      
+      contents: write
     steps:
+      # 添加下载构建产物的步骤
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+          
+      # 列出下载的文件（可选，用于调试）
+      - name: Display structure of downloaded files
+        run: ls -R artifacts/
+        
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v0.1.4
-          files: "rs-capi-*"  # 如果需要上传构建产物
+          files: artifacts/**/*  # 修改为包含所有下载的构建产物
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
