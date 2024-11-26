@@ -40,16 +40,11 @@ jobs:
           override: true
           
       - name: Install dependencies
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu pkg-config libssl-dev gcc-multilib  crossbuild-essential-arm64  musl-tools
 
-      - name: Setup cross-compilation for aarch64
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          echo '[target.aarch64-unknown-linux-gnu]' >> ~/.cargo/config
-          echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config
-          
       - name: Build
         working-directory: rs-capi
         env:
