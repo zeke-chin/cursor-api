@@ -1,14 +1,14 @@
 pub fn string_to_hex(text: &str, model_name: &str) -> Vec<u8> {
     let text_bytes = text.as_bytes();
     let text_length = text_bytes.len();
-    
+
     // 固定常量
     const FIXED_HEADER: usize = 2;
     const SEPARATOR: usize = 1;
-    
+
     let model_name_bytes = model_name.as_bytes();
     let fixed_suffix_length = 0xA3 + model_name_bytes.len();
-    
+
     // 计算第一个长度字段
     let (text_length_field1, text_length_field_size1) = if text_length < 128 {
         (format!("{:02x}", text_length), 1)
@@ -29,8 +29,12 @@ pub fn string_to_hex(text: &str, model_name: &str) -> Vec<u8> {
     };
 
     // 计算总消息长度
-    let message_total_length = FIXED_HEADER + text_length_field_size + SEPARATOR +
-                             text_length_field_size1 + text_length + fixed_suffix_length;
+    let message_total_length = FIXED_HEADER
+        + text_length_field_size
+        + SEPARATOR
+        + text_length_field_size1
+        + text_length
+        + fixed_suffix_length;
 
     // 构造十六进制字符串
     let model_name_length_hex = format!("{:02X}", model_name_bytes.len());
@@ -54,7 +58,8 @@ pub fn string_to_hex(text: &str, model_name: &str) -> Vec<u8> {
         hex::encode_upper(text_bytes),
         model_name_length_hex,
         model_name_hex
-    ).to_uppercase();
+    )
+    .to_uppercase();
 
     // 将十六进制字符串转换为字节数组
     hex::decode(hex_string).unwrap_or_default()
@@ -64,7 +69,7 @@ pub fn chunk_to_utf8_string(chunk: &[u8]) -> String {
     if chunk.len() < 2 {
         return String::new();
     }
-    
+
     if chunk[0] == 0x01 || chunk[0] == 0x02 || (chunk[0] == 0x60 && chunk[1] == 0x0C) {
         return String::new();
     }
@@ -72,15 +77,15 @@ pub fn chunk_to_utf8_string(chunk: &[u8]) -> String {
     // 尝试找到0x0A并从其后开始处理
     let chunk = match chunk.iter().position(|&x| x == 0x0A) {
         Some(pos) => &chunk[pos + 1..],
-        None => chunk
+        None => chunk,
     };
 
     let mut filtered_chunk = Vec::new();
     let mut i = 0;
-    
+
     while i < chunk.len() {
         // 检查是否有连续的0x00
-        if i + 4 <= chunk.len() && chunk[i..i+4].iter().all(|&x| x == 0x00) {
+        if i + 4 <= chunk.len() && chunk[i..i + 4].iter().all(|&x| x == 0x00) {
             i += 4;
             while i < chunk.len() && chunk[i] <= 0x0F {
                 i += 1;
@@ -108,4 +113,4 @@ pub fn chunk_to_utf8_string(chunk: &[u8]) -> String {
 
     // 转换为UTF-8字符串
     String::from_utf8_lossy(&filtered_chunk).trim().to_string()
-} 
+}
