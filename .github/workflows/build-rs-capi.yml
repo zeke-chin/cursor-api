@@ -83,7 +83,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v0.1.4
+          tag_name: ${{ github.ref_name }}
           files: artifacts/**/*  # 修改为包含所有下载的构建产物
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
