@@ -44,10 +44,10 @@ jobs:
         
       - name: Package
         working-directory: rs-capi
-        run: tar -czf ${{ matrix.artifact_name }} -C target/${{ matrix.target }}/release rs-capi
+        run: |
+          tar -czf ../${{ matrix.artifact_name }} -C target/${{ matrix.target }}/release rs-capi
         
       - name: Upload artifact
-        working-directory: rs-capi
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact_name }}
