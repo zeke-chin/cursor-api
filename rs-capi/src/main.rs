@@ -224,6 +224,7 @@ async fn main() {
     let app = Router::new()
         .route("/v1/chat/completions", post(chat_completions))
         .route("/models", get(models))
+        .route("/v1/models", get(models))
         .layer(cors)
         .layer(
             TraceLayer::new_for_http()
