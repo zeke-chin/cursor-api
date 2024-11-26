@@ -6,3 +6,4 @@ node_modules/
 .idea/
 __pycache__/
 rs-capi/target/
+**/.vscode/
