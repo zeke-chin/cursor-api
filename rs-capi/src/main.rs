@@ -4,7 +4,7 @@ use axum::{
         sse::{Event, Sse},
         IntoResponse, Response,
     },
-    routing::post,
+    routing::{get, post},
     Json, Router,
 };
 use std::error::Error;
@@ -159,7 +159,7 @@ async fn main() {
     // 创建路由
     let app = Router::new()
         .route("/v1/chat/completions", post(chat_completions))
-        .route("/models", post(models))
+        .route("/models", get(models))
         .layer(cors)
         .layer(
             TraceLayer::new_for_http()
