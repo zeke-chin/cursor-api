@@ -1,6 +1,3 @@
-# cursor-api
-
-将 Cursor 编辑器转换为 OpenAI 兼容的 API 接口服务。
 
 ## 项目简介
 
