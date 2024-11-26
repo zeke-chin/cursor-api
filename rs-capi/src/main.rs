@@ -7,6 +7,7 @@ use axum::{
     routing::post,
     Json, Router,
 };
+use std::error::Error;
 use tower_http::trace::TraceLayer;
 
 use bytes::Bytes;
@@ -262,7 +263,16 @@ async fn chat_completions(
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(300))
         .build()
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            tracing::error!("创建HTTP客户端失败: {:?}", e);
+            tracing::error!(error = %e, "错误详情");
+
+            if let Some(source) = e.source() {
+                tracing::error!(source = %source, "错误源");
+            }
+
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     let response = client
         .post("https://api2.cursor.sh/aiserver.v1.AiService/StreamChat")
@@ -270,7 +280,32 @@ async fn chat_completions(
         .body(hex_data)
         .send()
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            tracing::error!("请求失败: {:?}", e);
+            tracing::error!(error = %e, "错误详情");
+
+            // 如果是超时错误
+            if e.is_timeout() {
+                tracing::error!("请求超时");
+            }
+
+            // 如果是连接错误
+            if e.is_connect() {
+                tracing::error!("连接失败");
+            }
+
+            // 如果有请求信息
+            if let Some(url) = e.url() {
+                tracing::error!(url = %url, "请求URL");
+            }
+
+            // 如果有状态码
+            if let Some(status) = e.status() {
+                tracing::error!(status = %status, "HTTP状态码");
+            }
+
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     if chat_request.stream {
         let mut chunks = Vec::new();
@@ -347,7 +382,72 @@ async fn models() -> Json<serde_json::Value> {
                 "created": 1713744000,
                 "owned_by": "anthropic"
             },
-            // ... 其他模型
+            {
+                "id": "claude-3-opus",
+                "object": "model",
+                "created": 1709251200,
+                "owned_by": "anthropic"
+            },
+            {
+                "id": "claude-3.5-haiku",
+                "object": "model",
+                "created": 1711929600,
+                "owned_by": "anthropic"
+            },
+            {
+                "id": "claude-3.5-sonnet",
+                "object": "model",
+                "created": 1711929600,
+                "owned_by": "anthropic"
+            },
+            {
+                "id": "cursor-small",
+                "object": "model",
+                "created": 1712534400,
+                "owned_by": "cursor"
+            },
+            {
+                "id": "gpt-3.5-turbo",
+                "object": "model",
+                "created": 1677649200,
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4",
+                "object": "model",
+                "created": 1687392000,
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4-turbo-2024-04-09",
+                "object": "model",
+                "created": 1712620800,
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4o",
+                "object": "model",
+                "created": 1712620800,
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4o-mini",
+                "object": "model",
+                "created": 1712620800,
+                "owned_by": "openai"
+            },
+            {
+                "id": "o1-mini",
+                "object": "model",
+                "created": 1712620800,
+                "owned_by": "openai"
+            },
+            {
+                "id": "o1-preview",
+                "object": "model",
+                "created": 1712620800,
+                "owned_by": "openai"
+            }
         ]
     }))
 }

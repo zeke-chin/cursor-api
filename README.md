@@ -20,7 +20,7 @@
 
 ## 快速开始
 ```
-docker run xxxx -p 3000:3000 ghcr.io/xxxx/rs-capi:latest
+docker run --rm -p 7070:3000 ghcr.io/xxxx/rs-capi:latest
 ```
 
 docker-compose

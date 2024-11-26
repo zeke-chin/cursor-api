@@ -16,9 +16,9 @@ RUN cargo build --bin rs-capi --release
 
 
 FROM ubuntu:22.04
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     ca-certificates \
-#     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /workspace/target/release/rs-capi /workspace/rs-capi
 

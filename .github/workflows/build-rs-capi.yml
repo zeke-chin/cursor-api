@@ -40,7 +40,6 @@ jobs:
           override: true
           
       - name: Install dependencies
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu pkg-config libssl-dev gcc-multilib  crossbuild-essential-arm64  musl-tools
