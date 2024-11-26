@@ -16,7 +16,7 @@
 - 接口地址：`http://localhost:3000/v1/chat/completions`
 - 请求方法：POST
 - 认证方式：Bearer Token（使用 WorkosCursorSessionToken 的值，支持英文逗号分隔的key入参）
-- 请求格式和响应格式参考openai
+- 请求格式和响应格式参考openai 支持图片！！
 
 ## 快速开始
 ```
@@ -29,7 +29,57 @@ services:
   rs-capi:
     image: ghcr.io/zeke-chin/cursor-api:latest
     ports:
-      - 3000:3000
+      - 7000:3000
+```
+
+调用示例
+```
+curl http://localhost:3000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer user_xxxx" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "What'\''s in this image? 中文回复"
+          },
+          {
+            "type": "image_url",
+            "image_url": {
+              "url": "https://zh.wikipedia.org/zh-cn/%E7%BE%8E%E5%85%83#/media/File:50_USD_Series_2004_Note_Back.jpg"
+            }
+          }
+        ]
+      }
+    ],
+    "max_tokens": 300
+  }'  | jq
+------------------
+{
+  "id": "chatcmpl-30dc37e7-d411-4946-a24d-dcc78ec2fdec",
+  "object": "chat.completion",
+  "created": 1732607371,
+  "model": "gpt-4o",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "这是一张50美元纸币的背面图像。纸币上印有美国国会大厦的图案。"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0
+  }
+}
 ```
 
 ## 注意事项

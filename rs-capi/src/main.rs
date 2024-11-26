@@ -31,7 +31,31 @@ use hex_utils::{chunk_to_utf8_string, string_to_hex};
 #[derive(Debug, Deserialize)]
 struct Message {
     role: String,
-    content: String,
+    content: Vec<ContentPart>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type")]
+enum ContentPart {
+    #[serde(rename = "text")]
+    Text { text: String },
+
+    #[serde(rename = "image_url")]
+    ImageUrl { image_url: ImageUrl },
+}
+
+#[derive(Debug, Deserialize)]
+struct ImageUrl {
+    url: String,
+}
+
+impl std::fmt::Display for ContentPart {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ContentPart::Text { text } => write!(f, "{}", text),
+            ContentPart::ImageUrl { image_url } => write!(f, "[Image: {}]", image_url.url),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -230,10 +254,25 @@ async fn chat_completions(
     }
 
     // 格式化消息
+    // let formatted_messages = chat_request
+    //     .messages
+    //     .iter()
+    //     .map(|msg| format!("{}:{}", msg.role, msg.content))
+    //     .collect::<Vec<_>>()
+    //     .join("\n");
+
     let formatted_messages = chat_request
         .messages
         .iter()
-        .map(|msg| format!("{}:{}", msg.role, msg.content))
+        .map(|msg| {
+            let content = msg
+                .content
+                .iter()
+                .map(|part| part.to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("{}:{}", msg.role, content)
+        })
         .collect::<Vec<_>>()
         .join("\n");
 
