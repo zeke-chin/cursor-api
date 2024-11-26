@@ -1,7 +1,10 @@
 
 ## 项目简介
 
-本项目提供了一个代理服务，可以将 Cursor 编辑器的 AI 能力转换为与 OpenAI API 兼容的接口，让您能够在其他应用中复用 Cursor 的 AI 能力。
+- 本项目提供了一个代理服务，可以将 Cursor 编辑器的 AI 能力转换为与 OpenAI API 兼容的接口，让您能够在其他应用中复用 Cursor 的 AI 能力。
+- 目前只完成rs-capi的开发，go 未实现
+- 支持图片
+
 
 ## 使用前准备
 
@@ -86,7 +89,6 @@ curl http://localhost:3000/v1/chat/completions \
 
 - 请妥善保管您的 WorkosCursorSessionToken，不要泄露给他人
 - 本项目仅供学习研究使用，请遵守 Cursor 的使用条款
-- 目前只完成rs-capi的开发，go 未实现
 
 ## 原始项目
 
