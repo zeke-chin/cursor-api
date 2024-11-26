@@ -16,26 +16,27 @@
 - 接口地址：`http://localhost:3000/v1/chat/completions`
 - 请求方法：POST
 - 认证方式：Bearer Token（使用 WorkosCursorSessionToken 的值，支持英文逗号分隔的key入参）
-
-### 请求格式和响应格式参考openai
-
+- 请求格式和响应格式参考openai
 
 ## 快速开始
+```
+docker run xxxx -p 3000:3000 ghcr.io/xxxx/rs-capi:latest
+```
 
-1. 克隆项目  
-- git clone https://github.com/waitkafuka/cursor-api.git  
-- cd cursor-api  
-2. 安装依赖  
-- yarn
-3. 启动服务
-- yarn dev（开发环境）
-- yarn start（生产环境方式一）
-- pm2 start ecosystem.config.js（生产环境方式二）
+docker-compose
+```
+services:
+  rs-capi:
+    image: ghcr.io/xxxx/rs-capi:latest
+    ports:
+      - 3000:3000
+```
 
 ## 注意事项
 
 - 请妥善保管您的 WorkosCursorSessionToken，不要泄露给他人
 - 本项目仅供学习研究使用，请遵守 Cursor 的使用条款
+- 目前只完成rs-capi的开发，go 未实现
 
 ## 原始项目
 
