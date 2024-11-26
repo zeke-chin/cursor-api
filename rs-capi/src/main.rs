@@ -1,3 +1,5 @@
+use axum::body::Body;
+use axum::extract::Request;
 use axum::{
     http::{HeaderMap, StatusCode},
     response::{
@@ -7,15 +9,14 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use std::error::Error;
-use tower_http::trace::TraceLayer;
-
 use bytes::Bytes;
 use futures::{
     channel::mpsc,
     stream::{Stream, StreamExt},
     SinkExt,
 };
+use std::error::Error;
+use tower_http::trace::TraceLayer;
 // use http::HeaderName as HttpHeaderName;
 use regex::Regex;
 use serde::Deserializer;
@@ -259,8 +260,34 @@ async fn main() {
 // 处理聊天完成请求
 async fn chat_completions(
     headers: HeaderMap,
-    Json(chat_request): Json<ChatRequest>,
+    request: Request<Body>,
+    // Json(chat_request): Json<ChatRequest>,
 ) -> Result<Response, StatusCode> {
+    // 提取并打印原始请求体
+    const MAX_BODY_SIZE: usize = 20 * 1024 * 1024;
+
+    let bytes = match axum::body::to_bytes(request.into_body(), MAX_BODY_SIZE).await {
+        Ok(bytes) => bytes,
+        Err(err) => {
+            tracing::error!("读取请求体失败: {}", err);
+            return Err(StatusCode::BAD_REQUEST);
+        }
+    };
+
+    // 打印原始请求体
+    if let Ok(body_str) = String::from_utf8(bytes.to_vec()) {
+        tracing::info!("原始请求体: {}", body_str);
+    }
+
+    // 尝试解析 JSON
+    let chat_request: ChatRequest = match serde_json::from_slice(&bytes) {
+        Ok(req) => req,
+        Err(err) => {
+            tracing::error!("JSON解析失败: {}", err);
+            return Err(StatusCode::BAD_REQUEST);
+        }
+    };
+
     // 验证认证
     let auth_header = headers
         .get("authorization")
