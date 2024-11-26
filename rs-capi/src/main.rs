@@ -31,7 +31,7 @@ use hex_utils::{chunk_to_utf8_string, string_to_hex};
 #[derive(Debug, Deserialize)]
 struct Message {
     role: String,
-    #[serde(deserialize_with = "deserialize_single_or_vec")]
+    #[serde(deserialize_with = "deserialize_content")]
     content: Vec<ContentPart>,
 }
 
@@ -43,18 +43,36 @@ enum SingleOrVec<T> {
     Vec(Vec<T>),
 }
 
-// 简单的辅助函数
-fn deserialize_single_or_vec<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+// 新增一个字符串或ContentPart的枚举
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum ContentItem {
+    String(String),
+    Part(ContentPart),
+}
+
+// 新的反序列化函数
+fn deserialize_content<'de, D>(deserializer: D) -> Result<Vec<ContentPart>, D::Error>
 where
     D: Deserializer<'de>,
-    T: Deserialize<'de>,
 {
-    let value = SingleOrVec::deserialize(deserializer)?;
-    Ok(match value {
-        SingleOrVec::Single(x) => vec![x],
-        SingleOrVec::Vec(x) => x,
+    // 首先尝试作为字符串反序列化
+    let content = SingleOrVec::<ContentItem>::deserialize(deserializer)?;
+    Ok(match content {
+        SingleOrVec::Single(item) => match item {
+            ContentItem::String(s) => vec![ContentPart::Text { text: s }],
+            ContentItem::Part(p) => vec![p],
+        },
+        SingleOrVec::Vec(items) => items
+            .into_iter()
+            .map(|item| match item {
+                ContentItem::String(s) => ContentPart::Text { text: s },
+                ContentItem::Part(p) => p,
+            })
+            .collect(),
     })
 }
+
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 enum ContentPart {
