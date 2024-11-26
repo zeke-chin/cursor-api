@@ -83,7 +83,7 @@ jobs:
 
   # 构建并发布 Docker 镜像
   build-docker:
-    needs: build-release
+    # needs: build-release
     strategy:
       matrix:
         platform: [linux/amd64, linux/arm64]
