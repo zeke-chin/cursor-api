@@ -183,7 +183,8 @@ async fn main() {
         );
 
     // 启动服务器
-    let addr = "0.0.0.0:3002";
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+    let addr = format!("0.0.0.0:{}", port);
     println!("Server running on {}", addr);
 
     // 修改服务器启动代码

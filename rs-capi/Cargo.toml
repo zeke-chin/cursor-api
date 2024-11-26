@@ -1,5 +1,5 @@
 [package]
-name = "rs-api"
+name = "rs-capi"
 version = "0.1.0"
 edition = "2021"
 
