@@ -18,12 +18,12 @@ use futures::{
 };
 // use http::HeaderName as HttpHeaderName;
 use regex::Regex;
+use serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::{convert::Infallible, time::Duration};
 use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
-
 mod hex_utils;
 use hex_utils::{chunk_to_utf8_string, string_to_hex};
 
@@ -31,9 +31,30 @@ use hex_utils::{chunk_to_utf8_string, string_to_hex};
 #[derive(Debug, Deserialize)]
 struct Message {
     role: String,
+    #[serde(deserialize_with = "deserialize_single_or_vec")]
     content: Vec<ContentPart>,
 }
 
+// 添加一个辅助枚举
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum SingleOrVec<T> {
+    Single(T),
+    Vec(Vec<T>),
+}
+
+// 简单的辅助函数
+fn deserialize_single_or_vec<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    let value = SingleOrVec::deserialize(deserializer)?;
+    Ok(match value {
+        SingleOrVec::Single(x) => vec![x],
+        SingleOrVec::Vec(x) => x,
+    })
+}
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 enum ContentPart {
