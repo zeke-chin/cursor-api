@@ -2,8 +2,10 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ "main" ]
+    tags: [ "v*" ]
+    paths:
+      - 'rs-capi/**'
 
 jobs:
   # 构建各平台二进制文件
@@ -13,16 +15,16 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: rs-cap-linux-x86_64.tar.gz
+            artifact_name: rs-capi-linux-x86_64.tar.gz
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name: rs-cap-linux-aarch64.tar.gz
+            artifact_name: rs-capi-linux-aarch64.tar.gz
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: rs-cap-darwin-x86_64.tar.gz
+            artifact_name: rs-capi-darwin-x86_64.tar.gz
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: rs-cap-darwin-aarch64.tar.gz
+            artifact_name: rs-capi-darwin-aarch64.tar.gz
             
     runs-on: ${{ matrix.os }}
     
@@ -37,12 +39,15 @@ jobs:
           override: true
           
       - name: Build
+        working-directory: rs-capi
         run: cargo build --release --target ${{ matrix.target }}
         
       - name: Package
-        run: tar -czf ${{ matrix.artifact_name }} -C target/${{ matrix.target }}/release rs-cap
+        working-directory: rs-capi
+        run: tar -czf ${{ matrix.artifact_name }} -C target/${{ matrix.target }}/release rs-capi
         
       - name: Upload artifact
+        working-directory: rs-capi
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact_name }}
@@ -59,7 +64,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            */rs-cap-*.tar.gz
+            */rs-capi-*.tar.gz
           draft: false
           prerelease: false
         env:
@@ -92,7 +97,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: rs-cap/Dockerfile
+          file: rs-capi/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
           tags: |
