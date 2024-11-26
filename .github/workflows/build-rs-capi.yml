@@ -39,8 +39,24 @@ jobs:
           target: ${{ matrix.target }}
           override: true
           
+      - name: Install dependencies
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu pkg-config libssl-dev gcc-multilib  crossbuild-essential-arm64  musl-tools
+
+      - name: Setup cross-compilation for aarch64
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          echo '[target.aarch64-unknown-linux-gnu]' >> ~/.cargo/config
+          echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config
+          
       - name: Build
         working-directory: rs-capi
+        env:
+          PKG_CONFIG_ALLOW_CROSS: "1"
+          OPENSSL_DIR: "/usr"
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: "aarch64-linux-gnu-gcc"
         run: cargo build --release --target ${{ matrix.target }}
         
       - name: Package
