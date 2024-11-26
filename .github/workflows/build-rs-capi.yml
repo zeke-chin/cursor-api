@@ -4,9 +4,9 @@ on:
   push:
     branches: [ "main" ]
     tags: [ "v*" ]
-    paths:
-      - 'rs-capi/**'
-      - '.github/workflows/**'
+    # paths:
+    #   - 'rs-capi/**'
+      # - '.github/workflows/**'
 
 jobs:
   # 构建各平台二进制文件
@@ -107,7 +107,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: rs-capi
           file: rs-capi/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
