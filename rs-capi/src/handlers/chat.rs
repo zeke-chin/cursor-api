@@ -199,9 +199,9 @@ pub async fn chat_completions(
         match chunk {
             Ok(chunk) => {
                 let res = chunk_to_utf8_string(&chunk);
-                if !res.is_empty() {
-                    text.push_str(&res);
-                }
+                // if !res.is_empty() {
+                text.push_str(&res);
+                // }
             }
             Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
         }
@@ -249,45 +249,25 @@ async fn process_stream(
     tokio::spawn(async move {
         for chunk in chunks {
             let text = chunk_to_utf8_string(&chunk);
+
+            // 只在文本非空时处理和发送
             if !text.is_empty() {
-                let text = text.trim();
-                let text = if let Some(idx) = text.find("<|END_USER|>") {
-                    text[idx + "<|END_USER|>".len()..].trim()
-                } else {
-                    text
+                let response = models::chat::StreamResponse {
+                    id: response_id.clone(),
+                    object: "chat.completion.chunk".to_string(),
+                    created: chrono::Utc::now().timestamp(),
+                    choices: vec![models::chat::StreamChoice {
+                        index: 0,
+                        delta: models::chat::Delta { content: text },
+                    }],
                 };
 
-                let text = if !text.is_empty() && text.chars().next().unwrap().is_alphabetic() {
-                    text[1..].trim()
-                } else {
-                    text
-                };
-
-                let re = Regex::new(r"[\x00-\x1F\x7F]").unwrap();
-                let text = re.replace_all(text, "");
-
-                if !text.is_empty() {
-                    let var_name = models::chat::StreamResponse {
-                        id: response_id.clone(),
-                        object: "chat.completion.chunk".to_string(),
-                        created: chrono::Utc::now().timestamp(),
-                        choices: vec![models::chat::StreamChoice {
-                            index: 0,
-                            delta: models::chat::Delta {
-                                content: text.to_string(),
-                            },
-                        }],
-                    };
-                    let response = var_name;
-
-                    let json_data = serde_json::to_string(&response).unwrap();
-                    if !json_data.is_empty() {
-                        let _ = tx.send(Ok(Event::default().data(json_data))).await;
-                    }
-                }
+                let json_data = serde_json::to_string(&response).unwrap();
+                let _ = tx.send(Ok(Event::default().data(json_data))).await;
             }
         }
 
+        // 发送完成标记
         let _ = tx.send(Ok(Event::default().data("[DONE]"))).await;
     });
 
